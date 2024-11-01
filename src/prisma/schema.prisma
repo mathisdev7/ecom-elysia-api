@@ -1,0 +1,77 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id         String       @id @default(uuid())
+  username   String    @unique
+  name       String?
+  email      String    @unique
+  password   String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  role       Role      @default(USER)
+  Cart       Cart?
+  Orders     Order[]
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  price       Float
+  stock       Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  CartItems   CartItem[]
+  OrderItems  OrderItem[]
+}
+
+model Cart {
+  id          Int        @id @default(autoincrement())
+  userId      String        @unique
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  CartItems   CartItem[]
+  User        User       @relation(fields: [userId], references: [id])
+}
+
+model CartItem {
+  id         Int     @id @default(autoincrement())
+  quantity   Int     @default(1)
+  cartId     Int
+  productId  Int
+  Cart       Cart     @relation(fields: [cartId], references: [id])
+  Product    Product  @relation(fields: [productId], references: [id])
+}
+
+model Order {
+  id          Int          @id @default(autoincrement())
+  userId      String
+  status      String        @default("PENDING") // PENDING, PAID, SHIPPED, etc.
+  totalAmount Float
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  OrderItems  OrderItem[]
+  User        User          @relation(fields: [userId], references: [id])
+}
+
+model OrderItem {
+  id         Int      @id @default(autoincrement())
+  quantity   Int
+  price      Float
+  productId  Int
+  orderId    Int
+  Order      Order    @relation(fields: [orderId], references: [id])
+  Product    Product  @relation(fields: [productId], references: [id])
+}
