@@ -1,6 +1,8 @@
 import { Elysia } from "elysia";
 import { error, logger } from "./middlewares";
-import { userRoutes } from "./routes";
+import { productRoutes, userRoutes } from "./routes";
+import cartRoutes from "./routes/cartRoutes";
+import orderItemRoutes from "./routes/orderItemRoutes";
 
 const app = new Elysia();
 
@@ -12,6 +14,9 @@ app.get("/", () => "Hello, world!");
 export const handler = app.fetch;
 
 app.use(userRoutes);
+app.use(productRoutes);
+app.use(orderItemRoutes);
+app.use(cartRoutes);
 
 app.listen(3000);
 
